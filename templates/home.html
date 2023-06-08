@@ -4,6 +4,11 @@
     <title>Fashion MNIST Classifier</title>
 </head>
 <body>
+    <div class="navbar">  
+        <a href="{{ url_for('home') }}">Home</a>  
+        <a href="{{ url_for('teachable') }}">Teachable Machine</a>  
+    </div> 
+
     <h1>Fashion MNIST Classifier</h1>
     <form action="/predict" method="post" enctype="multipart/form-data">
         <input type="file" name="file" accept="image/*">

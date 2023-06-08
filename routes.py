@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, render_template
 from PIL import Image
 import numpy as np
 from tensorflow import keras
@@ -12,31 +12,22 @@ loaded_model = keras.models.load_model('fashion_mnist_model.h5')
 # Define the class names
 class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 
                'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
+
+@app.route('/')
+def home():
+    return render_template('home.html')
+
+
+@app.route('/teachable')
+def teachable():
+    return render_template('teachable.html')
+
 # Make a prediction
 def predict_image(image):
     image = image.reshape(1, 28, 28)  # reshape the image to the input shape of the model
     prediction = loaded_model.predict(image)
     predicted_class = np.argmax(prediction)
     return class_names[predicted_class]
-
-
-@app.route('/')
-def home():
-    return '''
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Fashion MNIST Classifier</title>
-    </head>
-    <body>
-        <h1>Fashion MNIST Classifier</h1>
-        <form action="/predict" method="post" enctype="multipart/form-data">
-            <input type="file" name="file" accept="image/*">
-            <input type="submit" value="Classify Image">
-        </form>
-    </body>
-    </html>
-    '''
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -45,19 +36,8 @@ def predict():
     image = image.resize((28, 28))  # resize image to 28x28
     image = np.array(image) / 255.0  # normalize the pixel values
     prediction = predict_image(image)
-    return '''
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Fashion MNIST Classifier</title>
-    </head>
-    <body>
-        <h1>Fashion MNIST Classifier</h1>
-        <p>Predicted class: {}</p>
-        <a href="/">Try again</a>
-    </body>
-    </html>
-    '''.format(prediction)
+    print(prediction)
+    return render_template('prediction.html', prediction=prediction)
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -9,10 +9,19 @@
         <a href="{{ url_for('teachable') }}">Teachable Machine</a>  
     </div> 
 
-    <h1>Fashion MNIST Classifier</h1>
-    <form action="/predict" method="post" enctype="multipart/form-data">
+    <h1>Fashion MNIST Classifier, random images taken from 10000 image train set</h1>
+
+    <div class="image-list">
+        {% for image_path in image_paths %}
+            <a href="/classify/{{ image_path }}">
+                <img src="{{ url_for('static', filename=image_path) }}" alt="MNIST Image" style="width: 100px; height: 100px;">
+            </a>
+        {% endfor %}
+    </div>
+    
+    <!-- <form action="/predict" method="post" enctype="multipart/form-data">
         <input type="file" name="file" accept="image/*">
         <input type="submit" value="Classify Image">
-    </form>
+    </form> -->
 </body>
 </html>

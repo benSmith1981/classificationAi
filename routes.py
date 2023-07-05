@@ -13,10 +13,35 @@ loaded_model = keras.models.load_model('fashion_mnist_model.h5')
 class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 
                'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
 
+import random
+
 @app.route('/')
 def home():
-    return render_template('home.html')
+    # Load the MNIST Fashion dataset
+    (train_images, train_labels), (_, _) = keras.datasets.fashion_mnist.load_data()
 
+    # Select a random subset of images for display (e.g., 10 random images)
+    random_images = random.sample(range(len(train_images)), 10)
+    display_images = train_images[random_images]
+
+    # Save the images locally
+    image_paths = []
+    for i, image in enumerate(display_images):
+        image_path = f'images/image_{i}.png'  # Save the image in the "images" folder
+        Image.fromarray(image).save(f'static/{image_path}')
+        image_paths.append(image_path)
+
+    return render_template('home.html', image_paths=image_paths)
+
+
+@app.route('/classify/<path:image_path>')
+def classify(image_path):
+    print(image_path)
+    image = Image.open(f'static/{image_path}').convert('L')  # Load the image from the provided path
+    image = image.resize((28, 28))  # resize image to 28x28
+    image = np.array(image) / 255.0  # normalize the pixel values
+    prediction = predict_image(image)
+    return render_template('prediction.html', image_path=image_path, prediction=prediction)
 
 @app.route('/teachable')
 def teachable():
@@ -28,6 +53,7 @@ def predict_image(image):
     prediction = loaded_model.predict(image)
     predicted_class = np.argmax(prediction)
     return class_names[predicted_class]
+
 
 @app.route('/predict', methods=['POST'])
 def predict():
